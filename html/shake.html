@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Stadium Realtime</title>
+    <link href="style.css" rel="stylesheet" />
+    <style>
+      sp-organized-display {
+        --sp-seismograph-height: 250px;
+      }
+      img.logo {
+        height: 60px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <img class="logo" src="USC_McCauslandA_S_horizontal_RGB_2C.png" ></img>
+    <h3>Seisplotjs <span class="sp_version">3.1.5-SNAPSHOT</span></h3>
+    <h3>Seedlink3 Realtime display <span id="station"></span></h3>
+
+    <h5 >Now: <span id="nt"></span></h5>
+    <button id="disconnect">Disconnect</button>
+    <button id="pause">Pause</button>
+    Packets: <span id="numPackets">0</span>
+    <div id="realtime"></div>
+
+    <div id="debug"></div>
+    <script type="module" src="shake.js"></script>
+  </body>
+</html>

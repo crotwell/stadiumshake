@@ -20,10 +20,9 @@ def loadTimeWindow(start,
     locCode="00"
 
     bulk = []
-    for chanCode in ["EHZ", "EHN", "EHE", "HHZ"]:
+    for chanCode in ["EHZ", "EHN", "EHE"]:
         bulk.append( (networkCode, station, locCode, chanCode, waveform_start, waveform_start+timewidth))
-    for b in bulk:
-        print(b)
+    
     st = scsn.get_waveforms_bulk(bulk)
     return st
 

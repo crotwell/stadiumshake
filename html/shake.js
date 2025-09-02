@@ -6,6 +6,8 @@ document.querySelector(".sp_version").textContent = sp.version;
 let requestConfig = [
   'STATION R0381 AM',
   'SELECT 00EHZ.D',
+  'STATION R71D7 AM',
+  'SELECT 00EH?.D',
   'STATION 3804 CO',
   'SELECT 00HN?.D',
 ];

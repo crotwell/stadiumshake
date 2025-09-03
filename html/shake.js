@@ -14,8 +14,8 @@ let requestConfig = [
 // add lobby, for testing
 const lobby_sta = "R71D7"
 requestConfig = [
-  'STATION R71D7 AM',
-  'SELECT 00EHZ.D',
+  'STATION JSC CO',
+  'SELECT 00HHZ.D',
   'STATION 3804 CO',
   'SELECT 00HN?.D',
 ];

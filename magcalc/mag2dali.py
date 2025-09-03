@@ -11,11 +11,18 @@ import simpledali
 import simplemseed
 
 class EnergyMag:
-    def __init__(self):
+    def __init__(self, dali):
+        self.dali = dali
         self.lastTime = None
         self.prev_msr = None
-        pass
-    def calc(self, daliPacket, windowLength=None):
+        self.dist = 100 # m
+        self.rho = 2500 # kg/m3
+        self.beta = 350 # m/s
+        self.q_sr_r = 0.0625
+        self.mul_factor = 4*math.pi*self.dist*self.dist*self.rho*self.beta
+        self.gain = 360000000 # Raspberry shake counts per m/s
+    async def calc(self, daliPacket, windowLength=None):
+        out = []
         if daliPacket.streamIdType() == simpledali.MSEED_TYPE:
             msr = simplemseed.unpackMiniseedRecord(daliPacket.data)
             windowStart = self.lastTime
@@ -49,19 +56,40 @@ class EnergyMag:
             npts = int(windowLength.total_seconds() / sampPeriod.total_seconds())
             print(f"npts={npts}   sampPeriod={sampPeriod}  windowLength={windowLength}")
             startOffset = int((windowStart-tsStart).total_seconds() / sampPeriod.total_seconds())
+
+            if self.dali.dlproto == simpledali.DLPROTO_1_0:
+                # old style
+                streamid = f"{msr.header.network}_{msr.header.station}_00_MAG/JSON"
+            else:
+                sid = simplemseed.FDSNSourceId.fromNslc(msr.header.network, msr.header.station,"00","MAG")
+                streamid = simpledali.fdsnSourceIdToStreamId(sid, simpledali.JSON_TYPE)
+
             while startOffset+npts < len(ts):
                 print(f"tsStart={tsStart}  windowStart={windowStart} startOffset={startOffset}")
                 energy = 0
                 for i in range(npts):
-                    energy += 3*ts[startOffset+i]*ts[startOffset+i]
-                energy = math.sqrt(energy)
-                print(f"{windowStart} energy {energy}")
+                    energy += 3*ts[startOffset+i]*ts[startOffset+i]/self.gain/self.gain
+                energy = self.mul_factor * self.q_sr_r * math.sqrt(energy)
+                ergs = energy/1e7
+                mag_per_sec = (math.log(ergs) - 9.05)/1.96
+                print(f"{windowStart} energy {energy}  mag/s: {mag_per_sec}")
+                jsonMessage = {
+                    "st": windowStart.isoformat().replace("+00:00", "Z"),
+                    "erg": ergs,
+                    "mps": mag_per_sec
+                }
+                out.append(jsonMessage)
+                hpdatastart = simpledali.datetimeToHPTime(windowStart)
+                hpdataend = simpledali.datetimeToHPTime(windowStart+windowLength)
+                sendResult = await self.dali.writeJSON(streamid, hpdatastart, hpdataend, jsonMessage)
+
                 windowStart += windowLength
                 startOffset = int((windowStart-tsStart).total_seconds() / sampPeriod.total_seconds())
             self.lastTime = windowStart + windowLength
 
         self.prev_msr = msr
-        return 1
+        return out
+
     def extract(self, msr, start, width):
         prevTS = self.prev_msr.decompress()
         currTS = msr.decompress()
@@ -69,6 +97,7 @@ class EnergyMag:
 
 
 async def slinkConnect(packetFun):
+    host = "192.168.88.10"
     host = "eeyore.seis.sc.edu"
     prefix = "ringserver"
     uri = f"ws://{host}/{prefix}/datalink"
@@ -79,7 +108,7 @@ async def slinkConnect(packetFun):
     processid = 0
     architecture = "python"
 
-    max = 5
+    max = 0
 
     print()
     print("Attempt web socket datalink:")
@@ -91,10 +120,10 @@ async def slinkConnect(packetFun):
         networkCode = "CO"
         if dali.dlproto == simpledali.DLPROTO_1_0:
             matchPattern = f"^{networkCode}_.*"
-            matchPattern = f"^{networkCode}_BIRD_00_HHZ.*"
+            matchPattern = f"^{networkCode}_JSC_00_HHZ.*"
         else:
             matchPattern = f"FDSN:{networkCode}_.*"
-            matchPattern = f"FDSN:{networkCode}_BIRD_00_H_H_Z.*"
+            matchPattern = f"FDSN:{networkCode}_JSC_00_H_H_Z.*"
         print(f"Match packets: {matchPattern}")
         await dali.match(matchPattern)
 
@@ -104,8 +133,8 @@ async def slinkConnect(packetFun):
         async for daliPacket in dali.stream():
             count += 1
             print(f"Got Dali packet: {daliPacket}")
-            prev_msr = packetFun(daliPacket)
-            if count > max:
+            jdataList = await packetFun(daliPacket)
+            if max > 0 and count > max:
                 await dali.close()
                 break
 
@@ -122,9 +151,20 @@ def justPrint(daliPacket, prev_msr=None):
     return None
 
 async def main():
-    energyMag = EnergyMag()
-    packetFun = partial(energyMag.calc)
-    await slinkConnect(packetFun)
+    # init sending datalink
+    host = "localhost"
+    port = 16000
+    programname = "simpleDali"
+    username = "dragrace"
+    processid = 0
+    architecture = "python"
+    verbose = True
+    async with simpledali.SocketDataLink(host, port, verbose=verbose) as dali:
+        serverId = await dali.id(programname, username, processid, architecture)
+        print(f"Dali Id: {serverId}")
+        energyMag = EnergyMag(dali)
+        packetFun = partial(energyMag.calc)
+        await slinkConnect(packetFun)
     return 0
 
 if __name__ == "__main__":

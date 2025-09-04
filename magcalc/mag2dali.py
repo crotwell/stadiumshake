@@ -15,6 +15,7 @@ class EnergyMag:
         self.dali = dali
         self.lastTime = None
         self.prev_msr = None
+        self.prev_msr_list = []
         self.dist = 100 # m
         self.rho = 2500 # kg/m3
         self.beta = 350 # m/s
@@ -28,7 +29,8 @@ class EnergyMag:
             msr = simplemseed.unpackMiniseedRecord(daliPacket.data)
             windowStart = self.lastTime
             sampPeriod = timedelta(seconds=1/msr.header.sampleRate)
-            if self.prev_msr is not None:
+            if len(self.prev_msr_list) != 0:
+                self.prev_msr = self.prev_msr_list[-1]
                 td = msr.starttime() - self.prev_msr.next_starttime()
                 if td / sampPeriod < 0.25:
                     # continuous
@@ -64,12 +66,25 @@ class EnergyMag:
             else:
                 sid = simplemseed.FDSNSourceId.fromNslc(msr.header.network, msr.header.station,"00","MAG")
                 streamid = simpledali.fdsnSourceIdToStreamId(sid, simpledali.JSON_TYPE)
+            mean = 0
+            all_npts = 0
+            for pmsr in self.prev_msr_list:
+                for x in pmsr.decompress():
+                    mean += x
+                all_npts += len(pmsr.decompress())
+            # curr packet
+            for x in msr.decompress():
+                mean += x
+            all_npts += len(msr.decompress())
+            mean = mean / all_npts
+            print(f"mean: {mean} over {all_npts} points")
 
             while startOffset+npts < len(ts):
                 #print(f"tsStart={tsStart}  windowStart={windowStart} startOffset={startOffset}")
                 energy = 0
                 for i in range(npts):
-                    energy += 3*ts[startOffset+i]*ts[startOffset+i]/self.gain/self.gain
+                    val = (ts[startOffset+i]-mean)/self.gain
+                    energy += 3*val*val
                 energy = self.mul_factor * self.q_sr_r * math.sqrt(energy)
                 ergs = energy/1e7
                 mag_per_sec = (math.log(ergs) - 9.05)/1.96
@@ -90,6 +105,9 @@ class EnergyMag:
             self.lastTime = windowStart
 
         self.prev_msr = msr
+        self.prev_msr_list.append(msr)
+        if len(self.prev_msr_list) >= 10:
+            self.prev_msr_list = self.prev_msr_list[-10:]
         return out
 
     def extract(self, msr, start, width):
@@ -113,7 +131,7 @@ async def slinkConnect(packetFun):
     max = 0
 
     print()
-    print("Attempt web socket datalink:")
+    print("Attempt web socket datalink to read:")
     async with simpledali.WebSocketDataLink(uri, verbose=verbose) as dali:
         serverId = await dali.id(programname, username, processid, architecture)
         print(f"Connect to {uri} via websocket")
@@ -161,9 +179,10 @@ async def main():
     processid = 0
     architecture = "python"
     verbose = False
+    print(f"Attempt datalink connect {host}:{port} to write")
     async with simpledali.SocketDataLink(host, port, verbose=verbose) as dali:
         serverId = await dali.id(programname, username, processid, architecture)
-        print(f"Dali Id: {serverId}")
+        print(f"Dali Id: {serverId} to write")
         energyMag = EnergyMag(dali)
         packetFun = partial(energyMag.calc)
         await slinkConnect(packetFun)

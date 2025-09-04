@@ -14,7 +14,7 @@ const SH_HEIGHT = 300
 const SH_HALF = SH_HEIGHT
 const GARNET = "#73000a";
 const METER_MAX = 1.5;
-const METER_OFFSET = -7.4;
+const METER_OFFSET = -7.8;
 export const METER_DELAY = sp.luxon.Duration.fromObject({seconds: 10});
 const MAX_PRIOR_VALUES = 15;
 
@@ -59,7 +59,7 @@ function updateMeter(val, start, sid) {
     }
     path.setAttribute("d", d_attr);
   }, 1000);
-  document.querySelector("#mag").textContent=`${val}`;
+  document.querySelector("#mag").textContent=`${val.toFixed(2)}`;
   document.querySelector("#mag_offset").textContent=`${METER_OFFSET} range: ${METER_MAX}`;
 
   const textDiv = document.querySelector("div#shakevalues ul");

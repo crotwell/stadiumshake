@@ -40,16 +40,16 @@ class EnergyMag:
                     tsStart = self.prev_msr.starttime()
 
                     if windowStart is None:
-                        windowStart = self.prev_msr.starttime().replace(microsecond=0) + timedelta(milliseconds=1000);
+                        windowStart = self.prev_msr.starttime().replace(microsecond=0) + timedelta(milliseconds=1000)
                 else:
                     print(f"gap {td}")
-                    windowStart = self.msr.starttime()
+                    windowStart = msr.starttime().replace(microsecond=0) + timedelta(milliseconds=1000);
                     tsStart = self.msr.starttime()
                     ts = msr.decompress()
             else:
                 ts = msr.decompress()
                 tsStart = msr.starttime()
-                windowStart = msr.starttime()
+                windowStart = msr.starttime().replace(microsecond=0) + timedelta(milliseconds=1000);
             if windowStart < tsStart:
                 windowStart = tsStart.replace(microsecond=0) + timedelta(milliseconds=1000);
             if windowLength is None:

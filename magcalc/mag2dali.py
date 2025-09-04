@@ -10,6 +10,9 @@ import numpy as np
 import simpledali
 import simplemseed
 
+networkCode = "AM"
+stationCode = "R0381"
+
 class EnergyMag:
     def __init__(self, dali):
         self.dali = dali
@@ -137,13 +140,12 @@ async def slinkConnect(packetFun):
         print(f"Connect to {uri} via websocket")
         print(f"WebSocket Id: {serverId.message}")
 
-        networkCode = "CO"
         if dali.dlproto == simpledali.DLPROTO_1_0:
-            matchPattern = f"^{networkCode}_.*"
-            matchPattern = f"^{networkCode}_JSC_00_HHZ.*"
+            matchPattern = f"^{networkCode}_{stationCode}.*"
+            matchPattern = f"^{networkCode}_{stationCode}_00_HHZ.*"
         else:
-            matchPattern = f"FDSN:{networkCode}_.*"
-            matchPattern = f"FDSN:{networkCode}_JSC_00_H_H_Z.*"
+            matchPattern = f"FDSN:{networkCode}_{stationCode}.*"
+            matchPattern = f"FDSN:{networkCode}_{stationCode}_00_H_H_Z.*"
         print(f"Match packets: {matchPattern}")
         await dali.match(matchPattern)
 

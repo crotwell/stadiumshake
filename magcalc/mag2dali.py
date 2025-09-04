@@ -107,10 +107,10 @@ class EnergyMag:
                 startOffset = int((windowStart-tsStart).total_seconds() / sampPeriod.total_seconds())
             self.lastTime = windowStart
 
-        self.prev_msr = msr
-        self.prev_msr_list.append(msr)
-        if len(self.prev_msr_list) >= 10:
-            self.prev_msr_list = self.prev_msr_list[-10:]
+            self.prev_msr = msr
+            self.prev_msr_list.append(msr)
+            if len(self.prev_msr_list) >= 10:
+                self.prev_msr_list = self.prev_msr_list[-10:]
         return out
 
     def extract(self, msr, start, width):

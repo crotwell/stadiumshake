@@ -21,6 +21,7 @@ class EnergyMag:
         self.q_sr_r = 0.0625
         self.mul_factor = 4*math.pi*self.dist*self.dist*self.rho*self.beta
         self.gain = 360000000 # Raspberry shake counts per m/s
+        self.window_millis = 1000 # window size in milliseconds
     async def calc(self, daliPacket, windowLength=None):
         out = []
         if daliPacket.streamIdType() == simpledali.MSEED_TYPE:
@@ -31,7 +32,7 @@ class EnergyMag:
                 td = msr.starttime() - self.prev_msr.next_starttime()
                 if td / sampPeriod < 0.25:
                     # continuous
-                    print("continuous")
+                    #print("continuous")
 
                     prevTS = self.prev_msr.decompress()
                     currTS = msr.decompress()
@@ -39,7 +40,7 @@ class EnergyMag:
                     tsStart = self.prev_msr.starttime()
 
                     if windowStart is None:
-                        windowStart = self.prev_msr.starttime()
+                        windowStart = self.prev_msr.starttime().replace(microsecond=0) + timedelta(milliseconds=1000);
                 else:
                     print(f"gap {td}")
                     windowStart = self.msr.starttime()
@@ -50,11 +51,11 @@ class EnergyMag:
                 tsStart = msr.starttime()
                 windowStart = msr.starttime()
             if windowStart < tsStart:
-                windowStart = tsStart
+                windowStart = tsStart.replace(microsecond=0) + timedelta(milliseconds=1000);
             if windowLength is None:
                 windowLength = timedelta(seconds=1)
             npts = int(windowLength.total_seconds() / sampPeriod.total_seconds())
-            print(f"npts={npts}   sampPeriod={sampPeriod}  windowLength={windowLength}")
+            #print(f"npts={npts}   sampPeriod={sampPeriod}  windowLength={windowLength}")
             startOffset = int((windowStart-tsStart).total_seconds() / sampPeriod.total_seconds())
 
             if self.dali.dlproto == simpledali.DLPROTO_1_0:
@@ -65,7 +66,7 @@ class EnergyMag:
                 streamid = simpledali.fdsnSourceIdToStreamId(sid, simpledali.JSON_TYPE)
 
             while startOffset+npts < len(ts):
-                print(f"tsStart={tsStart}  windowStart={windowStart} startOffset={startOffset}")
+                #print(f"tsStart={tsStart}  windowStart={windowStart} startOffset={startOffset}")
                 energy = 0
                 for i in range(npts):
                     energy += 3*ts[startOffset+i]*ts[startOffset+i]/self.gain/self.gain
@@ -76,16 +77,17 @@ class EnergyMag:
                 jsonMessage = {
                     "st": windowStart.isoformat().replace("+00:00", "Z"),
                     "erg": ergs,
-                    "mps": mag_per_sec
+                    "mps": mag_per_sec,
+                    "sid": str(msr.header.fdsnSourceId())
                 }
                 out.append(jsonMessage)
                 hpdatastart = simpledali.datetimeToHPTime(windowStart)
                 hpdataend = simpledali.datetimeToHPTime(windowStart+windowLength)
                 sendResult = await self.dali.writeJSON(streamid, hpdatastart, hpdataend, jsonMessage)
-
+                #print(f"send: {jsonMessage['st']}")
                 windowStart += windowLength
                 startOffset = int((windowStart-tsStart).total_seconds() / sampPeriod.total_seconds())
-            self.lastTime = windowStart + windowLength
+            self.lastTime = windowStart
 
         self.prev_msr = msr
         return out
@@ -101,7 +103,7 @@ async def slinkConnect(packetFun):
     host = "eeyore.seis.sc.edu"
     prefix = "ringserver"
     uri = f"ws://{host}/{prefix}/datalink"
-    verbose = True
+    verbose = False
 
     programname = "simpleDali"
     username = "dragrace"
@@ -153,12 +155,12 @@ def justPrint(daliPacket, prev_msr=None):
 async def main():
     # init sending datalink
     host = "localhost"
-    port = 16000
+    port = 16008
     programname = "simpleDali"
     username = "dragrace"
     processid = 0
     architecture = "python"
-    verbose = True
+    verbose = False
     async with simpledali.SocketDataLink(host, port, verbose=verbose) as dali:
         serverId = await dali.id(programname, username, processid, architecture)
         print(f"Dali Id: {serverId}")

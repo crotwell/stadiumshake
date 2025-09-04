@@ -15,7 +15,8 @@ const SH_HALF = SH_HEIGHT
 const GARNET = "#73000a";
 const METER_MAX = 1.5;
 const METER_OFFSET = -7.4;
-const METER_DELAY = sp.luxon.Duration.fromObject({seconds: 10});
+export const METER_DELAY = sp.luxon.Duration.fromObject({seconds: 10});
+const MAX_PRIOR_VALUES = 15;
 
 function drawMeter() {
   const meterDiv = document.querySelector("div#shakemeter");
@@ -42,17 +43,22 @@ function createArcPath(val, max) {
   return `M0,${SH_HALF}  A${SH_HALF},${SH_HALF} 0 0,1 ${SH_HALF*(1-Math.cos(rad))},${SH_HALF*(1-Math.sin(rad))} L${SH_HALF},${SH_HALF} Z`
 }
 
+let priorMagValue = 0;
 function updateMeter(val, start, sid) {
-  const path = document.querySelector("div#shakemeter svg path");
-  let d_attr = path.getAttribute("d");
-  if (val < 0) {
-    d_attr = createArcPath(0, METER_MAX);
-  } else if (val > METER_MAX) {
-    d_attr = createArcPath(METER_MAX, METER_MAX);
-  } else {
-    d_attr = createArcPath(val, METER_MAX);
-  }
-  path.setAttribute("d", d_attr);
+  const myPriorVal = priorMagValue;
+  sp.transition.transition( (x) => {
+    const curVal = myPriorVal + x * (val-myPriorVal);
+    const path = document.querySelector("div#shakemeter svg path");
+    let d_attr = path.getAttribute("d");
+    if (curVal < 0) {
+      d_attr = createArcPath(0, METER_MAX);
+    } else if (curVal > METER_MAX) {
+      d_attr = createArcPath(METER_MAX, METER_MAX);
+    } else {
+      d_attr = createArcPath(curVal, METER_MAX);
+    }
+    path.setAttribute("d", d_attr);
+  }, 1000);
   document.querySelector("#mag").textContent=`${val}`;
   document.querySelector("#mag_offset").textContent=`${METER_OFFSET} range: ${METER_MAX}`;
 
@@ -60,9 +66,10 @@ function updateMeter(val, start, sid) {
   const h = document.createElement("li");
   h.textContent = `${val.toFixed(2)}    ${start.toISO()}  ${sid}`;
   textDiv.insertBefore(h, textDiv.firstChild);
-  while (textDiv.childElementCount > 10) {
+  while (textDiv.childElementCount > MAX_PRIOR_VALUES) {
     textDiv.removeChild(textDiv.lastChild);
   }
+  priorMagValue = val;
 }
 
 let packetHandler = (daliPacket) => {

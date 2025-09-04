@@ -94,13 +94,20 @@ let errorHandler = (error) => {
   addToDebug(`ERROR: ${error}`)
 }
 
+//const magRing = "http://localhost:16000/datalink"
+const magRing = "http://eeyore.seis.sc.edu/stadiumringserver/datalink"
+
 const dali = new sp.datalink.DataLinkConnection(
-  "http://localhost:16000/datalink",
+  magRing,
   packetHandler,
   errorHandler
 )
 drawMeter();
-dali.connect().then( response => {
+dali.connect()
+.catch( err => {
+  addToDebug(`unable to connet to mag ring: ${magRing}`);
+  throw err;
+}).then( response => {
   return dali.match(".*_M_A_G/JSON");
 }).then( response => {
   const start_dali = sp.luxon.DateTime.utc().minus(METER_DELAY);

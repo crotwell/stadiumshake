@@ -1,0 +1,20 @@
+[Unit]
+Description=Archive magcalc json from ringserver as jsonl
+After=multi-user.target
+Requires=ringserver-stadium.service
+
+[Service]
+User=scsn
+Group=scsn
+WorkingDirectory=/data/scsn
+Restart=always
+RestartSec=10
+Type=idle
+ExecStart=/home/scsn/.venvs/stadium/bin/dali2jsonl -c /data/scsn/conf/dali2jsonl_magcalc.toml -v
+
+[Install]
+WantedBy=default.target
+
+##
+##   15004 is ringserver_soh
+##

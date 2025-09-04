@@ -1,0 +1,21 @@
+[Unit]
+Description=Calculate mag as json and send to stadium ringserver
+After=multi-user.target
+Requires=ringserver-stadium.service
+Requires=ringserver-int.service
+
+[Service]
+User=scsn
+Group=scsn
+WorkingDirectory=/data/scsn
+Restart=always
+RestartSec=10
+Type=idle
+ExecStart=/home/scsn/.venvs/stadium/bin/python /data/scsn/stadiumshake/magcalc/mag2dali.py
+
+[Install]
+WantedBy=default.target
+
+##
+##   15004 is ringserver_soh
+##

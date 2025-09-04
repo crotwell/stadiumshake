@@ -13,8 +13,8 @@ function addToDebug(message) {
 const SH_HEIGHT = 300
 const SH_HALF = SH_HEIGHT
 const GARNET = "#73000a";
-const METER_MAX = 0.5;
-const METER_OFFSET = -7.1;
+const METER_MAX = 1.5;
+const METER_OFFSET = -7.4;
 const METER_DELAY = sp.luxon.Duration.fromObject({seconds: 10});
 
 function drawMeter() {
@@ -34,6 +34,7 @@ function drawMeter() {
     </path>
   </svg>
   `;
+
 }
 
 function createArcPath(val, max) {
@@ -41,7 +42,7 @@ function createArcPath(val, max) {
   return `M0,${SH_HALF}  A${SH_HALF},${SH_HALF} 0 0,1 ${SH_HALF*(1-Math.cos(rad))},${SH_HALF*(1-Math.sin(rad))} L${SH_HALF},${SH_HALF} Z`
 }
 
-function updateMeter(val) {
+function updateMeter(val, start, sid) {
   const path = document.querySelector("div#shakemeter svg path");
   let d_attr = path.getAttribute("d");
   if (val < 0) {
@@ -54,6 +55,14 @@ function updateMeter(val) {
   path.setAttribute("d", d_attr);
   document.querySelector("#mag").textContent=`${val}`;
   document.querySelector("#mag_offset").textContent=`${METER_OFFSET} range: ${METER_MAX}`;
+
+  const textDiv = document.querySelector("div#shakevalues ul");
+  const h = document.createElement("li");
+  h.textContent = `${val.toFixed(2)}    ${start.toISO()}  ${sid}`;
+  textDiv.insertBefore(h, textDiv.firstChild);
+  while (textDiv.childElementCount > 10) {
+    textDiv.removeChild(textDiv.lastChild);
+  }
 }
 
 let packetHandler = (daliPacket) => {
@@ -62,13 +71,14 @@ let packetHandler = (daliPacket) => {
     const jdata = daliPacket.asJson();
     const st = sp.luxon.DateTime.fromISO(jdata.st);
     const delay = sp.luxon.Interval.fromDateTimes(st, sp.luxon.DateTime.utc());
-    const delayMillis = delay.toDuration().toMillis();
+    const delayMillis = METER_DELAY.toMillis()-delay.toDuration().toMillis();
+
     if (delayMillis > 0) {
       setTimeout( () => {
-        updateMeter((jdata.mps-METER_OFFSET));
+        updateMeter((jdata.mps-METER_OFFSET), st, jdata.sid);
       }, delayMillis);
     } else {
-      updateMeter((jdata.mps-METER_OFFSET));
+      updateMeter((jdata.mps-METER_OFFSET), st, jdata.sid);
     }
   }
 };

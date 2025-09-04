@@ -134,7 +134,7 @@ async def slinkConnect(packetFun):
     max = 0
 
     print()
-    print("Attempt web socket datalink to read:")
+    print(f"Attempt web socket datalink to read: {uri}")
     async with simpledali.WebSocketDataLink(uri, verbose=verbose) as dali:
         serverId = await dali.id(programname, username, processid, architecture)
         print(f"Connect to {uri} via websocket")

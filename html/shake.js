@@ -1,5 +1,5 @@
 import * as sp from "./seisplotjs_3.1.5-SNAPSHOT_standalone.js";
-import {METER_DELAY} from "./shakemeter.js";
+import {METER_DELAY, METER_WIDTH} from "./shakemeter.js";
 
 document.querySelector(".sp_version").textContent = sp.version;
 
@@ -184,14 +184,19 @@ let togglePause = function () {
 };
 
 const DELAY_MARKER = "delay";
+const DELAY_MARKER_END = "end";
 rtDisp.organizedDisplay.seismographConfig.doMarkers=true;
 setInterval( () => {
   const delayTime = sp.luxon.DateTime.utc().minus(METER_DELAY);
+  const delayTimeEnd = sp.luxon.DateTime.utc().minus(METER_DELAY).plus(METER_WIDTH);
   rtDisp.organizedDisplay.seisData.forEach(sdd => {
     let found = false;
     sdd.getMarkers().forEach( mark => {
       if (mark.name === DELAY_MARKER) {
         mark.time = delayTime;
+        found = true;
+      } else if (mark.name === DELAY_MARKER_END) {
+        mark.time = delayTimeEnd;
         found = true;
       }
     });
@@ -200,6 +205,12 @@ setInterval( () => {
         markertype: sp.seismographmarker.MARKERTYPE_PREDICTED,
         name: DELAY_MARKER,
         time: delayTime,
+        description: "",
+      });
+      sdd.addMarker( {
+        markertype: sp.seismographmarker.MARKERTYPE_PREDICTED,
+        name: DELAY_MARKER_END,
+        time: delayTimeEnd,
         description: "",
       });
     }

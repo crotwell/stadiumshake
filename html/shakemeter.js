@@ -14,8 +14,9 @@ const SH_HEIGHT = 300
 const SH_HALF = SH_HEIGHT
 const GARNET = "#73000a";
 const METER_MAX = 1.5;     // jsc=1.5, rasp=2.5
-const METER_OFFSET = -6.0; // jsc=>-7.8, rasp=-5.5
+const METER_OFFSET = -7.8; // jsc=>-7.8, rasp=-5.5
 export const METER_DELAY = sp.luxon.Duration.fromObject({seconds: 10});
+export const METER_WIDTH = sp.luxon.Duration.fromObject({seconds: 1});//from magcalc.py
 const MAX_PRIOR_VALUES = 15;
 
 function drawMeter() {

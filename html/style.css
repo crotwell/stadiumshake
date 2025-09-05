@@ -11,5 +11,11 @@
 }
 
 .row {
+  width: 100%;
   display: flex;
+  justify-content: space-between;
+}
+
+.row h1 {
+  font-size: xx-large;
 }

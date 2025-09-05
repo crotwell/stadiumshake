@@ -179,6 +179,7 @@ async def main():
     # init sending datalink
     host = "localhost"
     port = 16008
+    port = 6382
     programname = "simpleDali"
     username = "dragrace"
     processid = 0

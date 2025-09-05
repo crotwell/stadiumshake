@@ -1,5 +1,6 @@
 import * as sp from "./seisplotjs_3.1.5-SNAPSHOT_standalone.js";
 import {METER_DELAY, METER_WIDTH} from "./shakemeter.js";
+import {createWebSocketURL} from "./util.js";
 
 document.querySelector(".sp_version").textContent = sp.version;
 
@@ -120,7 +121,8 @@ const IRIS_SEEDLINK = "wss://rtserve.iris.washington.edu/seedlink";
 const SCSN_SEEDLINK = "wss://eeyore.seis.sc.edu/intringserver/seedlink";
 const ONLOGIC_SEEDLINK = "ws://192.168.88.10:6382/seedlink"
 
-const SEEDLINK = ONLOGIC_SEEDLINK;
+const SEEDLINK = createWebSocketURL("seedlink");
+console.log(`seis ws url: ${SEEDLINK}`)
 
 let toggleConnect = function () {
   stopped = !stopped;

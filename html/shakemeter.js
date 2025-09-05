@@ -1,4 +1,5 @@
 import * as sp from "./seisplotjs_3.1.5-SNAPSHOT_standalone.js";
+import {createWebSocketURL} from "./util.js";
 
 
 function addToDebug(message) {
@@ -95,8 +96,10 @@ let errorHandler = (error) => {
   addToDebug(`ERROR: ${error}`)
 }
 
-const magRing = "ws://localhost:6382/datalink"
+//const magRing = "ws://localhost:6382/datalink"
 //const magRing = "ws://eeyore.seis.sc.edu/stadiumringserver/datalink"
+const magRing = createWebSocketURL("datalink");
+console.log(`mag ws url: ${magRing}`)
 
 const dali = new sp.datalink.DataLinkConnection(
   magRing,

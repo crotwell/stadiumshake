@@ -122,7 +122,9 @@ class EnergyMag:
 async def slinkConnect(packetFun):
     host = "192.168.88.10"
     host = "eeyore.seis.sc.edu"
+    host = "127.0.0.1"
     prefix = "ringserver"
+    prefix = "ring"
     uri = f"ws://{host}/{prefix}/datalink"
     verbose = False
 
@@ -142,10 +144,10 @@ async def slinkConnect(packetFun):
 
         if dali.dlproto == simpledali.DLPROTO_1_0:
             matchPattern = f"^{networkCode}_{stationCode}_00_EHZ.*"
-            matchPattern = f"^{networkCode}_{stationCode}_00_HHZ.*"
+            #matchPattern = f"^{networkCode}_{stationCode}_00_HHZ.*"
         else:
             matchPattern = f"FDSN:{networkCode}_{stationCode}_00_E_H_Z.*"
-            matchPattern = f"FDSN:{networkCode}_{stationCode}_00_H_H_Z.*"
+            #matchPattern = f"FDSN:{networkCode}_{stationCode}_00_H_H_Z.*"
         print(f"Match packets: {matchPattern}")
         await dali.match(matchPattern)
 

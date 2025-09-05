@@ -14,12 +14,6 @@ let requestConfig = [
 ];
 // add lobby, for testing
 const lobby_sta = "R71D7"
-requestConfig = [
-  'STATION JSC CO',
-  'SELECT 00HHZ.D',
-  'STATION 3804 CO',
-  'SELECT 00HN?.D',
-];
 
 let stationText = "";
 let netCodeList = new Set();
@@ -126,7 +120,7 @@ const IRIS_SEEDLINK = "wss://rtserve.iris.washington.edu/seedlink";
 const SCSN_SEEDLINK = "wss://eeyore.seis.sc.edu/intringserver/seedlink";
 const ONLOGIC_SEEDLINK = "ws://192.168.88.10:6382/seedlink"
 
-const SEEDLINK = SCSN_SEEDLINK;
+const SEEDLINK = ONLOGIC_SEEDLINK;
 
 let toggleConnect = function () {
   stopped = !stopped;

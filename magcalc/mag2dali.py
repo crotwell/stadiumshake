@@ -12,6 +12,7 @@ import simplemseed
 
 networkCode = "AM"
 stationCode = "R0381"
+#stationCode = "R71D7"
 
 class EnergyMag:
     def __init__(self, dali):

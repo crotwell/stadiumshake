@@ -95,8 +95,8 @@ let errorHandler = (error) => {
   addToDebug(`ERROR: ${error}`)
 }
 
-//const magRing = "http://localhost:16000/datalink"
-const magRing = "http://eeyore.seis.sc.edu/stadiumringserver/datalink"
+//const magRing = "ws://localhost:16000/datalink"
+const magRing = "ws://eeyore.seis.sc.edu/stadiumringserver/datalink"
 
 const dali = new sp.datalink.DataLinkConnection(
   magRing,

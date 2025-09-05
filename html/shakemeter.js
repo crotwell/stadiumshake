@@ -108,7 +108,11 @@ dali.connect()
   addToDebug(`unable to connet to mag ring: ${magRing}`);
   throw err;
 }).then( response => {
-  return dali.match(".*_M_A_G/JSON");
+  if (dali.dlproto === "1.0") {
+    return dali.match(".*_MAG/JSON");
+  } else {
+    return dali.match(".*_M_A_G/JSON");
+  }
 }).then( response => {
   const start_dali = sp.luxon.DateTime.utc().minus(METER_DELAY);
   addToDebug(`Start dali for mag at ${start_dali.toISO()}`);

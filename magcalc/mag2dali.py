@@ -141,10 +141,10 @@ async def slinkConnect(packetFun):
         print(f"WebSocket Id: {serverId.message}")
 
         if dali.dlproto == simpledali.DLPROTO_1_0:
-            matchPattern = f"^{networkCode}_{stationCode}.*"
+            matchPattern = f"^{networkCode}_{stationCode}_00_EHZ.*"
             matchPattern = f"^{networkCode}_{stationCode}_00_HHZ.*"
         else:
-            matchPattern = f"FDSN:{networkCode}_{stationCode}.*"
+            matchPattern = f"FDSN:{networkCode}_{stationCode}_00_E_H_Z.*"
             matchPattern = f"FDSN:{networkCode}_{stationCode}_00_H_H_Z.*"
         print(f"Match packets: {matchPattern}")
         await dali.match(matchPattern)

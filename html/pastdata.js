@@ -31,6 +31,7 @@ function loadData(timeWindow) {
   const div = document.querySelector("div#myseismograph");
   div.innerHTML = "";
   let seisConfig = new sp.seismographconfig.SeismographConfig();
+  seisConfig.amplitudeMean();
   let seisData = [sdd_1c];
   seisData.forEach( sdd => {
       markList.forEach( m => {

@@ -2,7 +2,11 @@
 import * as sp from "./seisplotjs_3.1.5-SNAPSHOT_standalone.js";
 sp.util.updateVersionText(".sp_version");
 
-let timeWindow = sp.util.startDuration("2025-09-07T01:00:00Z", 7100);
+const timeWindow = sp.util.startDuration("2025-09-07T01:00:00Z", 7100);
+
+document.querySelector("button.kickoff").addEventListener("click", () => {
+  loadData(timeWindow);
+});
 
 function loadData(timeWindow) {
   const seisurl = "http://192.168.88.10/mseed/AM/R0381/2025/250/AM.R0381.00.EHZ.2025.250.02"

@@ -10,7 +10,7 @@ document.querySelector("button.kickoff").addEventListener("click", () => {
 
 function loadData(timeWindow) {
   const seisurl = "http://192.168.88.10/mseed/AM/R0381/2025/250/AM.R0381.00.EHZ.2025.250.02"
-  const baseUrl = "http://eeyore.seis.sc.edu/scsn/stadiumdata/mseed";
+  const baseUrl = "https://eeyore.seis.sc.edu/scsn/stadiumdata/mseed";
   let mseedQ = new sp.mseedarchive.MSeedArchive(
             baseUrl,
             "%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H",

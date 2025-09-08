@@ -31,7 +31,7 @@ function loadData(timeWindow) {
   let markList = [
     {
   	  name: "kickoff",
-  	  time: sp.util.checkStringOrDate("2025-09-07T01:22:00Z")
+  	  time: sp.util.checkStringOrDate("2025-09-07T01:21:00Z")
     },
     {
   	  name: "DanTap",

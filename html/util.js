@@ -3,7 +3,11 @@
 export function createWebSocketURL(linktype) {
   const loc = new URL(`/${linktype}`, window.location.href);
   if (loc.hostname.startsWith("eeyore")) {
-    loc.pathname = `/intringserver/${linktype}`;
+    if (linktype === "seedlink") {
+      loc.pathname = `/intringserver/${linktype}`;
+    } else {
+      loc.pathname = `/stadiumringserver/${linktype}`;
+    }
   } else if (loc.hostname === "localhost") {
     if (linktype === "seedlink") {
       loc.hostname = "eeyore.seis.sc.edu";

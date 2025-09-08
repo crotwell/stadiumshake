@@ -123,9 +123,9 @@ class EnergyMag:
 async def slinkConnect(packetFun):
     host = "192.168.88.10"
     host = "eeyore.seis.sc.edu"
-    host = "127.0.0.1"
-    prefix = "ringserver"
-    prefix = "ring"
+    #host = "127.0.0.1"
+    prefix = "intringserver" # eeyore ringserver_stadium
+    #prefix = "ring"  # onlogic
     uri = f"ws://{host}/{prefix}/datalink"
     verbose = False
 
@@ -178,8 +178,9 @@ def justPrint(daliPacket, prev_msr=None):
 async def main():
     # init sending datalink
     host = "localhost"
-    port = 16008
-    port = 6382
+    port = 16000
+    port = 6378 # eeyore ringserver_stadium
+    #port = 6382 # onlogic
     programname = "simpleDali"
     username = "dragrace"
     processid = 0

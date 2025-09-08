@@ -21,34 +21,45 @@ function loadData(timeWindow) {
     "AM", "R0381","00","EHZ",
     timeWindow.start,timeWindow.end
   );
+  let seisData = [sdd_1c];
+  for (let chan of ["EHZ", "EHN", "EHE"]) {
+    seisData.push(sp.seismogram.SeismogramDisplayData.fromCodesAndTimes(
+      "AM", "R71D7","00",chan,
+      timeWindow.start,timeWindow.end
+    ));
+  }
   let markList = [
     {
   	  name: "kickoff",
-  	  time: sp.util.checkStringOrDate("2025-09-07T01:21:00Z")
+  	  time: sp.util.checkStringOrDate("2025-09-07T01:22:00Z")
+    },
+    {
+  	  name: "DanTap",
+  	  time: sp.util.checkStringOrDate("2025-09-06T23:30:00Z")
+    },
+    {
+  	  name: "RampPower",
+  	  time: sp.util.checkStringOrDate("2025-09-06T23:20:30Z")
     }
   ];
 
-  const div = document.querySelector("div#myseismograph");
-  div.innerHTML = "";
+  const orgDisp = document.querySelector("sp-organized-display");
   let seisConfig = new sp.seismographconfig.SeismographConfig();
   seisConfig.amplitudeMean();
-  let seisData = [sdd_1c];
   seisData.forEach( sdd => {
-      markList.forEach( m => {
-  	sdd.addMarker(m);
-      });
+    markList.forEach( m => {
+      sdd.addMarker(m);
+    });
   });
-
-  let graph = new sp.seismograph.Seismograph(seisData, seisConfig);
-  div.appendChild(graph);
+  orgDisp.seismographConfig = seisConfig;
+  orgDisp.seisData = seisData;
 
   mseedQ.loadSeismograms(seisData)
     .then((seisArray) => {
-  	  graph.seisData = seisData;
-  	  graph.redraw();
+      orgDisp.redraw();
     })
     .catch(function (error) {
-      const div = document.querySelector("div#myseismograph");
+      const div = document.querySelector("div#message");
       div.innerHTML = `
         <p>Error loading data. ${error}</p>
       `;

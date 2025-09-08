@@ -17,7 +17,7 @@ const SH_HALF = SH_HEIGHT
 const GARNET = "#73000a";
 const METER_MAX = 2.5;     // jsc=1.5, rasp=2.5
 const METER_OFFSET = -6.3; // jsc=>-7.8, rasp=-5.5
-export const METER_DELAY = sp.luxon.Duration.fromObject({seconds: 10});
+export const METER_DELAY = sp.luxon.Duration.fromObject({seconds: 5});
 export const METER_WIDTH = sp.luxon.Duration.fromObject({seconds: 1});//from magcalc.py
 const MAX_PRIOR_VALUES = 15;
 

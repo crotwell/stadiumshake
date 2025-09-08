@@ -11,11 +11,12 @@ function addToDebug(message) {
   const code = pre.appendChild(document.createElement("code"));
   code.textContent = message;
 }
+const STATION = "R0381";
 const SH_HEIGHT = 300
 const SH_HALF = SH_HEIGHT
 const GARNET = "#73000a";
-const METER_MAX = 1.5;     // jsc=1.5, rasp=2.5
-const METER_OFFSET = -7.8; // jsc=>-7.8, rasp=-5.5
+const METER_MAX = 2.5;     // jsc=1.5, rasp=2.5
+const METER_OFFSET = -6.3; // jsc=>-7.8, rasp=-5.5
 export const METER_DELAY = sp.luxon.Duration.fromObject({seconds: 10});
 export const METER_WIDTH = sp.luxon.Duration.fromObject({seconds: 1});//from magcalc.py
 const MAX_PRIOR_VALUES = 15;
@@ -113,9 +114,9 @@ dali.connect()
   throw err;
 }).then( response => {
   if (dali.dlproto === "1.0") {
-    return dali.match(".*_MAG/JSON");
+    return dali.match(`AM_${STATION}.*_MAG/JSON`);
   } else {
-    return dali.match(".*_M_A_G/JSON");
+    return dali.match(`AM_${STATION}.*_M_A_G/JSON`);
   }
 }).then( response => {
   const start_dali = sp.luxon.DateTime.utc().minus(METER_DELAY);

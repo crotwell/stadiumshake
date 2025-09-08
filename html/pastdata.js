@@ -35,6 +35,10 @@ function loadData(timeWindow) {
     },
     {
   	  name: "DanTap",
+  	  time: sp.util.checkStringOrDate("2025-09-07T00:20:00Z")
+    },
+    {
+  	  name: "DanTapObserved",
   	  time: sp.util.checkStringOrDate("2025-09-06T23:30:00Z")
     },
     {

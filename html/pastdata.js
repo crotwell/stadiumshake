@@ -34,6 +34,22 @@ function loadData(timeWindow) {
   	  time: sp.util.checkStringOrDate("2025-09-07T01:21:00Z")
     },
     {
+  	  name: "touchdown1",
+  	  time: sp.util.checkStringOrDate("2025-09-07T02:26:32Z")
+    },
+    {
+  	  name: "sandstorm1",
+  	  time: sp.util.checkStringOrDate("2025-09-07T02:30:00Z")
+    },
+    {
+  	  name: "touchdown2",
+  	  time: sp.util.checkStringOrDate("2025-09-07T02:35:00Z")
+    },
+    {
+  	  name: "sandstorm2",
+  	  time: sp.util.checkStringOrDate("2025-09-07T02:37:00Z")
+    },
+    {
   	  name: "DanTap",
   	  time: sp.util.checkStringOrDate("2025-09-07T00:20:00Z")
     },
